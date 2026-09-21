@@ -16,6 +16,7 @@ st.set_page_config(
 # ---------------------------------------------------------
 # 2. 시뮬레이션 핵심 로직 함수 정의
 # ---------------------------------------------------------
+@st.cache_data
 def simulate_genshin_style(n_sim=10000):
     """원신/스타레일형: 기본 0.6%, 74회부터 Soft Pity (+6%), 90회 Hard Pity, 50% 픽뚫"""
     results = []
@@ -52,6 +53,7 @@ def simulate_genshin_style(n_sim=10000):
             
     return np.array(results)
 
+@st.cache_data
 def simulate_blue_archive_style(n_sim=10000):
     """블루아카/마일리지형: 기본 0.7%, 200회 천장 마일리지 교환"""
     results = []
@@ -69,6 +71,7 @@ def simulate_blue_archive_style(n_sim=10000):
         
     return np.array(results)
 
+@st.cache_data
 def simulate_single_pity_style(n_sim=10000):
     """단일 천장형: 기본 1.5%, 80회 단일 확정 천장"""
     results = []
@@ -82,6 +85,14 @@ def simulate_single_pity_style(n_sim=10000):
         
     return np.array(results)
 
+def run_selected_sim(model_name, n):
+    if "원신" in model_name:
+        return simulate_genshin_style(n)
+    elif "블루아카" in model_name:
+        return simulate_blue_archive_style(n)
+    else:
+        return simulate_single_pity_style(n)
+
 # ---------------------------------------------------------
 # 3. 사이드바 컨트롤러 구성
 # ---------------------------------------------------------
@@ -92,21 +103,16 @@ st.sidebar.subheader("🎮 비교 대상 게임 모델 선택")
 model_a_name = st.sidebar.selectbox("게임 A 유형", ["원신/스타레일형 (2단계 픽뚫+보정)", "블루아카이브형 (마일리지)", "단일 천장형"], index=0)
 model_b_name = st.sidebar.selectbox("게임 B 유형", ["원신/스타레일형 (2단계 픽뚫+보정)", "블루아카이브형 (마일리지)", "단일 천장형"], index=1)
 
+# 시뮬레이션 실행 버튼 생성
+run_button = st.sidebar.button("🚀 시뮬레이션 실행", type="primary", use_container_width=True)
+
 # ---------------------------------------------------------
 # 4. 메인 대시보드 화면 구성
 # ---------------------------------------------------------
 st.title("🎲 주요 게임별 가챠 천장 메커니즘 비교 시뮬레이터")
 st.write("다양한 게임의 천장/픽뚫 방식에 따른 유저 지출 변동성(표준편차)과 실제 체감 확률을 시뮬레이션합니다.")
 
-def run_selected_sim(model_name, n):
-    if "원신" in model_name:
-        return simulate_genshin_style(n)
-    elif "블루아카" in model_name:
-        return simulate_blue_archive_style(n)
-    else:
-        return simulate_single_pity_style(n)
-
-# 시뮬레이션 데이터 실행
+# 시뮬레이션 실행 (최초 실행 또는 버튼 클릭 시)
 res_a = run_selected_sim(model_a_name, n_users)
 res_b = run_selected_sim(model_b_name, n_users)
 
