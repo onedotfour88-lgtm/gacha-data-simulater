@@ -13,10 +13,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# Matplotlib 한글 폰트 설정 (환경 대응)
-plt.rcParams['font.family'] = 'DejaVu Sans'
-plt.rcParams['axes.unicode_minus'] = False
-
 # ---------------------------------------------------------
 # 2. 시뮬레이션 핵심 로직 함수 정의
 # ---------------------------------------------------------
@@ -44,16 +40,13 @@ def simulate_genshin_style(n_sim=10000):
             # 뽑기 시도
             if np.random.rand() < prob:
                 if guaranteed:
-                    # 이전 픽뚫로 인한 확정 획득
                     results.append(pulls)
                     break
                 else:
-                    # 50% 픽뚫 판정
                     if np.random.rand() < 0.5:
                         results.append(pulls)
                         break
                     else:
-                        # 픽뚫 발생 -> 다음 확정권 획득
                         guaranteed = True
                         pity_count = 0
             
@@ -68,12 +61,10 @@ def simulate_blue_archive_style(n_sim=10000):
         
         for p in range(1, 201):
             pulls = p
-            # 0.7% 확률로 직접 획득
             if np.random.rand() < 0.007:
                 got_target = True
                 break
                 
-        # 200회 동안 못 얻었으면 마일리지로 천장 천장 교환 (200회 확정)
         results.append(pulls)
         
     return np.array(results)
@@ -101,8 +92,6 @@ st.sidebar.subheader("🎮 비교 대상 게임 모델 선택")
 model_a_name = st.sidebar.selectbox("게임 A 유형", ["원신/스타레일형 (2단계 픽뚫+보정)", "블루아카이브형 (마일리지)", "단일 천장형"], index=0)
 model_b_name = st.sidebar.selectbox("게임 B 유형", ["원신/스타레일형 (2단계 픽뚫+보정)", "블루아카이브형 (마일리지)", "단일 천장형"], index=1)
 
-run_button = st.sidebar.button("🚀 시뮬레이션 실행")
-
 # ---------------------------------------------------------
 # 4. 메인 대시보드 화면 구성
 # ---------------------------------------------------------
@@ -117,7 +106,7 @@ def run_selected_sim(model_name, n):
     else:
         return simulate_single_pity_style(n)
 
-# 시뮬레이션 데이터 실행 (최초 로딩 또는 버튼 클릭 시)
+# 시뮬레이션 데이터 실행
 res_a = run_selected_sim(model_a_name, n_users)
 res_b = run_selected_sim(model_b_name, n_users)
 
@@ -142,11 +131,11 @@ with col2:
 
 st.divider()
 
-# 시뮬레이션 분포 그래프 생성
+# 시뮬레이션 분포 그래프 (범례 한글 깨짐 방지를 위해 깔끔한 영문 라벨 적용)
 st.subheader("📊 획득 시도 횟수 분포 비교 (지출 변동성)")
 fig, ax = plt.subplots(figsize=(10, 4))
-sns.kdeplot(res_a, label=model_a_name, fill=True, alpha=0.4, ax=ax)
-sns.kdeplot(res_b, label=model_b_name, fill=True, alpha=0.4, ax=ax)
+sns.kdeplot(res_a, label=f"Model A ({model_a_name.split(' ')[0]})", fill=True, alpha=0.4, ax=ax)
+sns.kdeplot(res_b, label=f"Model B ({model_b_name.split(' ')[0]})", fill=True, alpha=0.4, ax=ax)
 ax.set_xlabel("Target Item Acquisition Pulls")
 ax.set_ylabel("Density")
 ax.legend()
@@ -154,7 +143,7 @@ st.pyplot(fig)
 
 st.divider()
 
-# 에러가 수정된 상세 통계 데이터표
+# 상세 통계 데이터표
 st.subheader("📋 상세 통계 데이터")
 
 stats_data = {
