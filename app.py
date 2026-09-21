@@ -96,7 +96,7 @@ model_b_name = st.sidebar.selectbox("게임 B 유형", ["원신/스타레일형 
 # 4. 메인 대시보드 화면 구성
 # ---------------------------------------------------------
 st.title("🎲 주요 게임별 가챠 천장 메커니즘 비교 시뮬레이터")
-st.markdown("다양한 게임의 천장/픽뚫 방식에 따른 **유저 지출 변동성(표준편차)**과 실제 체감 확률을 시뮬레이션합니다.")
+st.write("다양한 게임의 천장/픽뚫 방식에 따른 유저 지출 변동성(표준편차)과 실제 체감 확률을 시뮬레이션합니다.")
 
 def run_selected_sim(model_name, n):
     if "원신" in model_name:
@@ -131,7 +131,7 @@ with col2:
 
 st.divider()
 
-# 시뮬레이션 분포 그래프 (범례 한글 깨짐 방지를 위해 깔끔한 영문 라벨 적용)
+# 시뮬레이션 분포 그래프
 st.subheader("📊 획득 시도 횟수 분포 비교 (지출 변동성)")
 fig, ax = plt.subplots(figsize=(10, 4))
 sns.kdeplot(res_a, label=f"Model A ({model_a_name.split(' ')[0]})", fill=True, alpha=0.4, ax=ax)
